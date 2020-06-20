@@ -16,18 +16,19 @@ func deleteCustomersHandler(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
+		return
 	}
 
 	errx := deleteById(id)
 	if errx != nil {
 		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	log.Println("delete customer id:", id)
-	// t := &Message{Message: "customer deleted"}
 	c.JSON(http.StatusOK, gin.H{"message": "customer deleted"})
 }
 
 func deleteById(id int) error {
-	return database.DeleteById(id)
+	return database.DeleteCustomerById(id)
 }

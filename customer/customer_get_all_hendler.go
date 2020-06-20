@@ -1,33 +1,29 @@
 package customer
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kanit147/finalexam/database"
+	"github.com/kanit147/finalexam/types"
 )
 
 func getCustomersHandler(c *gin.Context) {
 	log.Println("getCustomersHandler:", time.Now())
 	status := c.Query("status")
 
-	stmt, err := database.Con().Prepare("SELECT id, name, email, status FROM customers")
+	rows, err := getAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	rows, err := stmt.Query()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	todos := []*Customer{}
+	customers := []*types.Customer{}
 	for rows.Next() {
-		t := &Customer{}
+		t := &types.Customer{}
 
 		err := rows.Scan(&t.ID, &t.Name, &t.Email, &t.Status)
 		if err != nil {
@@ -35,12 +31,12 @@ func getCustomersHandler(c *gin.Context) {
 			return
 		}
 
-		todos = append(todos, t)
+		customers = append(customers, t)
 	}
 
-	tt := []*Customer{}
+	tt := []*types.Customer{}
 
-	for _, item := range todos {
+	for _, item := range customers {
 		if status != "" {
 			if item.Status == status {
 				tt = append(tt, item)
@@ -51,4 +47,8 @@ func getCustomersHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tt)
+}
+
+func getAll() (*sql.Rows, error) {
+	return database.GetCustomerAll()
 }

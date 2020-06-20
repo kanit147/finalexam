@@ -1,35 +1,30 @@
 package customer
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kanit147/finalexam/database"
+	"github.com/kanit147/finalexam/types"
 )
 
 func createCustomersHandler(c *gin.Context) {
 	log.Println("createCustomersHandler:", time.Now())
 
-	// create table if not exists.
-	createTable := `CREATE TABLE IF NOT EXISTS CUSTOMERS (
-		ID SERIAL PRIMARY KEY,
-		NAME TEXT,
-		EMAIL TEXT,
-		STATUS TEXT
-	);
-		`
-	database.Con().Exec(createTable)
-
-	// insert into table
-	t := Customer{}
+	t := types.Customer{}
 	if err := c.ShouldBindJSON(&t); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	row := database.Con().QueryRow("INSERT INTO customers (name, email, status) values ($1, $2, $3)  RETURNING id", t.Name, t.Email, t.Status)
+	row, errx := create(t)
+	if errx != nil {
+		c.JSON(http.StatusInternalServerError, errx)
+		return
+	}
 
 	err := row.Scan(&t.ID)
 	if err != nil {
@@ -38,4 +33,8 @@ func createCustomersHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, t)
+}
+
+func create(t types.Customer) (*sql.Row, error) {
+	return database.CreateCustomer(t)
 }

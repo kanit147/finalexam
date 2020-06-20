@@ -1,4 +1,4 @@
-package customer
+package types
 
 type Customer struct {
 	ID     int    `json:"id"`
@@ -6,7 +6,3 @@ type Customer struct {
 	Email  string `json:"email"`
 	Status string `json:"status"`
 }
-
-// type Message struct {
-// 	Message string `json:"message"`
-// }
