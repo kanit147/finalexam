@@ -12,7 +12,7 @@ import (
 func createCustomersHandler(c *gin.Context) {
 	log.Println("createCustomersHandler:", time.Now())
 
-	/////////////////////
+	// create table if not exists.
 	createTable := `CREATE TABLE IF NOT EXISTS CUSTOMERS (
 		ID SERIAL PRIMARY KEY,
 		NAME TEXT,
@@ -21,8 +21,8 @@ func createCustomersHandler(c *gin.Context) {
 	);
 		`
 	database.Con().Exec(createTable)
-	/////////////////////
 
+	// insert into table
 	t := Customer{}
 	if err := c.ShouldBindJSON(&t); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
