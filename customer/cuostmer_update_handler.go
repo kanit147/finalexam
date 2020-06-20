@@ -12,6 +12,7 @@ import (
 func updateCustomersHandler(c *gin.Context) {
 	log.Println("updateCustomersHandler:", time.Now())
 	id := c.Param("id")
+
 	stmt, err := database.Con().Prepare("SELECT id, name, email, status FROM customers where id=$1")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
